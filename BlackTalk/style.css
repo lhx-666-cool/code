@@ -13,19 +13,23 @@ body {
   background-color: #343434;
   border-color: #1a1a1a;
   color: #b2b2b2;
+
 }
+
 .form-input {
   margin: 20px 0 10px 0;
-  width: 50vw;
+  width: 80%%;
 }
 .form-control{
   background-color: #575757;
   border: #1a1a1a;
   color: #b2b2b2;
+  width: 100%;
 }
 .generate-button {
-  width: 7vw;
-  margin: 20px 0 10px 1vw;
+  width: 80px;
+  margin: 20px 0 10px 0;
+  margin-left: 10px;
   color: #b2b2b2;
 }
 
