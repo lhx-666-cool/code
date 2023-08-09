@@ -1,0 +1,48 @@
+//
+// Created by liu on 2023/5/4.
+//
+#include<iostream>
+using namespace std;
+int n;
+const int N = 110;
+int jz[N][N];
+void zf() {
+    for (int i = 0; i < n; i++) {
+        jz[i][i] = 1;
+    }
+}
+
+void dc() {
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            jz[i][j] = jz[i][j] | jz[j][i]; // 将a[i][j]和a[j][i]做或运算
+            jz[j][i] = jz[i][j]; // 将结果赋给a[j][i]
+        }
+    }
+}
+
+void cd() {
+    for (int k = 0; k < n; k++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                jz[i][j] = jz[i][j] | (jz[i][k] & jz[k][j]); // 将a[i][j]和a[i][k]&a[k][j]做或运算
+            }
+        }
+    }
+}
+
+int main() {
+    cin >> n;
+    for (int i = 0; i < n;i ++) {
+        for (int j = 0; j < n; j ++) {
+            cin >> jz[i][j];
+        }
+    }
+    zf(), dc(), cd();
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < n; j ++) {
+            cout << jz[i][j] << " ";
+        }
+        cout << endl;
+    }
+}

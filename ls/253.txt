@@ -1,0 +1,110 @@
+//
+// Created by liu on 2023/5/4.
+//
+#include<iostream>
+#include<set>
+#include<vector>
+#include<string>
+
+using namespace std;
+
+set<string> va, vb, sbing, sjiao, scha, shuan;
+
+void bing() {
+    for (auto &i: va) {
+        sbing.insert(i);
+    }
+    for (auto &i: vb) {
+        sbing.insert(i);
+    }
+    cout << '{';
+    for (auto i = sbing.begin(); i != sbing.end(); i ++) {
+        if (i != sbing.begin()) {
+            cout << ",";
+        }
+        cout << *i;
+    }
+    cout << "}" << endl;
+}
+
+void jiao() {
+    for (auto &i: va) {
+        if (vb.find(i) != vb.end()) {
+            sjiao.insert(i);
+        }
+    }
+    cout << '{';
+    for (auto i = sjiao.begin(); i != sjiao.end(); i ++) {
+        if (i != sjiao.begin()) {
+            cout << ",";
+        }
+        cout << *i;
+    }
+    cout << "}" << endl;
+}
+
+void cha() {
+    for (auto &i: va) {
+        if (vb.find(i) == vb.end()) {
+            scha.insert(i);
+        }
+    }
+    cout << '{';
+    for (auto i = scha.begin(); i != scha.end(); i ++) {
+        if (i != scha.begin()) {
+            cout << ",";
+        }
+        cout << *i;
+    }
+    cout << "}" << endl;
+}
+
+void huan() {
+    for (auto &i: sbing) {
+        if (sjiao.find(i) == sjiao.end()) {
+            shuan.insert(i);
+        }
+    }
+    cout << '{';
+    for (auto i = shuan.begin(); i != shuan.end(); i ++) {
+        if (i != shuan.begin()) {
+            cout << ",";
+        }
+        cout << *i;
+    }
+    cout << "}" << endl;
+}
+
+int main() {
+    char a[1100], b[1100];
+    scanf("%s", a);
+    scanf("%s", b);
+    string temp;
+    for (int i = 1; a[i]; i++) {
+        if (a[i] == ',' || a[i] == '}') {
+            if (!temp.empty()) {
+                va.insert(temp);
+                temp = "";
+            }
+        } else {
+            temp += a[i];
+        }
+
+    }
+    temp = "";
+    for (int i = 1; b[i]; i++) {
+        if (b[i] == ',' || b[i] == '}') {
+            if (!temp.empty()) {
+                vb.insert(temp);
+                temp = "";
+            }
+        } else {
+            temp += b[i];
+        }
+
+    }
+    bing();
+    jiao();
+    cha();
+    huan();
+}

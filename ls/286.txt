@@ -1,0 +1,172 @@
+//
+// Created by liu on 2023/5/4.
+//
+//
+// Created by liu on 2023/5/3.
+//
+#include<iostream>
+#include<cctype>
+#include<string>
+#include<vector>
+#include<set>
+using namespace std;
+const int N = 500;
+typedef pair<int, string>IS;
+string inp[N];
+vector<string> res;
+int h = -1;
+string temp;
+set<IS> s;
+int n;
+int x, y;
+typedef vector<vector<int>> vv;
+vector<vv> jzs;
+vv jz;
+int num;
+void cx() {
+    x = -1;
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < n; j ++) {
+            if (jz[i][j] != 0) {
+                x = max(x, max(i, j));
+            }
+        }
+    }
+    x ++;
+}
+void cy() {
+    y = 1000;
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < n; j ++) {
+            if (jz[i][j] != 0){
+                y = min(y, min(i, j));
+            }
+        }
+    }
+}
+void zf() {
+    for (int i = y; i < x; i++) {
+        jz[i][i] = 1;
+    }
+}
+void dc() {
+    for (int i = y; i < x; i++) {
+        for (int j = i + 1; j < x; j++) {
+            jz[i][j] = jz[i][j] | jz[j][i]; // 将a[i][j]和a[j][i]做或运算
+            jz[j][i] = jz[i][j]; // 将结果赋给a[j][i]
+        }
+    }
+}
+bool fdc() {
+    for (int i = y; i < x; i ++) {
+        for (int j = 0; j < x; j ++) {
+            if (jz[i][j] == 1 &&  jz[j][i] == 1 && i != j) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void cd() {
+    for (int k = y; k < x; k++) {
+        for (int i = y; i < x; i++) {
+            for (int j = y; j < x; j++) {
+                jz[i][j] = jz[i][j] | (jz[i][k] & jz[k][j]); // 将a[i][j]和a[i][k]&a[k][j]做或运算
+            }
+        }
+    }
+}
+bool check() {
+    vv v2 = jz;
+//    cx(), cy();
+    zf(), cd();
+    x = n, y = 0;
+    for (int i = y; i < x; i ++) {
+        for (int j = y; j < x; j ++) {
+            if (v2[i][j] != jz[i][j]) {
+                num ++;
+                return false;
+            }
+        }
+    }
+    if (!fdc()) {
+        return false;
+    }
+    return true;
+
+}
+
+void dfs(int c, int j, int cnt) {
+    if (c == res.size()) {
+        if (check()) {
+            s.emplace(cnt, temp);
+        }
+        return;
+    }
+    for (int i = j; i < res.size(); i ++) {
+        string old = temp;
+        vv v2 = jz;
+        for (int l = 0; l < n; l ++) {
+            for (int m = 0; m < n; m ++) {
+                jz[l][m] = jz[l][m] | jzs[i][l][m];
+            }
+        }
+        if (!temp.empty()) {
+            temp += ",";
+        }
+        temp += res[i];
+        dfs(c + 1, i + 1, cnt + 1);
+        temp = old;
+        for (int l = 0; l < n; l ++) {
+            for (int m = 0; m < n; m ++) {
+                jz[l][m] = v2[l][m];
+            }
+        }
+    }
+    dfs(c + 1, j, cnt);
+}
+int main() {
+    char str[1100];
+    scanf("%s", str);
+    for (int i = 0; str[i] != '}'; i ++) {
+        if (str[i] == '{' || str[i] == ',') {
+            h ++;
+        }else {
+            inp[h] += str[i];
+        }
+    }
+    if (inp[0].empty()) {
+        n = 0;
+    }else {
+        n = h + 1;
+    }
+    for (int i = 0; i < n; i ++) {
+        for (int j = 0; j < n; j ++) {
+            vv k;
+            k.resize(n);
+            for (int l = 0; l < n; l ++) {
+                k[l].resize(n);
+                for (int m = 0; m < n; m ++) {
+                    k[l][m] = 0;
+                }
+            }
+            if (!inp[i].empty()) {
+                res.push_back("<" + inp[i] + "," + inp[j] + '>');
+            }
+            k[i][j] = 1;
+            jzs.push_back(k);
+        }
+    }
+    jz.resize(n);
+    for (int i = 0; i < n; i ++) {
+        jz[i].resize(n);
+        for (int j = 0; j < n; j ++) {
+            jz[i][j] = 0;
+        }
+    }
+    dfs(0, 0, 0);
+    for (auto & i : s) {
+        cout << "{" << i.second << "}" << endl;
+    }
+}
