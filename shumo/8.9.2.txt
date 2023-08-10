@@ -4,7 +4,7 @@ import pandas as pd
 import copy
 
 numpy.set_printoptions(precision=4, suppress=True)
-data = pd.read_excel("8.9.1.xlsx", sheet_name=2, usecols="B:D", header=None)
+data = pd.read_excel("8.9.2.xlsx", sheet_name=0, usecols="B:E", header=None)
 
 # 求标准化矩阵
 
@@ -15,9 +15,9 @@ m = numpy.size(data[0])
 n = numpy.size(data[:, 0])
 print(n, m)
 b = copy.deepcopy(data)
-for j in [0, 1]:
+c = copy.deepcopy(data)
+for j in [0, 1, 3]:
     b[:, j] = (numpy.max(data[:, j]) - data[:, j]) / (numpy.max(data[:, j]) - numpy.min(data[:, j]))
-
 for j in [2]:
     b[:, j] = (data[:, j] - numpy.min(data[:, j])) / (numpy.max(data[:, j]) - numpy.min(data[:, j]))
 
@@ -47,23 +47,26 @@ for i in range(0, m):
     e[i] = e[i] / numpy.sum(old_e)
 print(e)
 # 计算得分
-cstar = [1.0 for _ in range(0, m)]
-c0 = [1.0 for _ in range(0, m)]
+cstar = [0.0 for _ in range(0, m)]
+c0 = [0.0 for _ in range(0, m)]
 for i in range(0, m):
     cstar[i] = numpy.max(b[:, i])
     c0[i] = numpy.min(b[:, i])
-dstar = [1.0 for _ in range(0, n)]
+dstar = [0.0 for _ in range(0, n)]
 dstar = numpy.array(dstar)
-d0 = [1.0 for _ in range(0, n)]
+d0 = [0.0 for _ in range(0, n)]
 d0 = numpy.array(d0)
 for i in range(0, n):
     for j in range(0, m):
-        dstar[i] += e[j] * ((cstar[j] - b[i][j]) ** 2)
-        d0[i] += e[j] * ((c0[j] - b[i][j]) ** 2)
-    # dstar[i] = numpy.linalg.norm(b[i, :] - cstar)
-    # d0[i] = numpy.linalg.norm(b[i, :] - c0)
+        dstar[i] += e[j] * (pow((cstar[j] - b[i][j]), 2))
+        d0[i] += e[j] * (pow((c0[j] - b[i][j]), 2))
+    dstar[i] = numpy.sqrt(dstar[i])
+    d0[i] = numpy.sqrt((d0[i]))
 
 f = d0 / (dstar + d0)
+# f = copy.deepcopy(d0)
+# for i in range(0, n):
+#     f[i] = d0[i] / (dstar[i] + d0[i])
 print("f:", f)
 with open("res2.txt", 'w') as fp:
     for i in f:
