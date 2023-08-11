@@ -33,8 +33,7 @@ Z = np.array([[pulp.LpVariable(f"Z_{i}_{j}", cat=pulp.LpBinary) for j in range(Z
 
 # 定义目标函数（使列数最少）
 M = np.hstack((X, Y, Z))
-col_sum = np.sum(M, axis=0)
-problem += pulp.lpSum(col_sum)
+problem += pulp.lpSum([1 for i in range(M_dim[1]) if M[:, i].sum().value() == 0])
 
 # 添加约束
 for i in range(1, 25):
