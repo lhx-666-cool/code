@@ -1,0 +1,79 @@
+import pulp
+import numpy as np
+import pandas as pd
+
+# 输入矩阵的大小
+dim_x = 18
+dim_y = 11
+dim_z = 21
+
+data = pd.read_excel("8-11.1.xlsx", sheet_name=0, usecols="C:Z", header=0)
+data = np.array(data)
+print(data)
+A = data[0:18, :]
+B = data[18:29, :]
+C = data[29:50, :]
+
+# 定义问题
+A_dim = (18, 24)
+B_dim = (11, 24)
+C_dim = (21, 24)
+X_dim = (24, 18)
+Y_dim = (24, 11)
+Z_dim = (24, 21)
+M_dim = (24, 50)
+
+# 创建pulp问题
+problem = pulp.LpProblem("MatrixOptimization", pulp.LpMinimize)
+
+# 创建变量矩阵
+X = np.array([[pulp.LpVariable(f"X_{i}_{j}", cat=pulp.LpBinary) for j in range(X_dim[1])] for i in range(X_dim[0])])
+Y = np.array([[pulp.LpVariable(f"Y_{i}_{j}", cat=pulp.LpBinary) for j in range(Y_dim[1])] for i in range(Y_dim[0])])
+Z = np.array([[pulp.LpVariable(f"Z_{i}_{j}", cat=pulp.LpBinary) for j in range(Z_dim[1])] for i in range(Z_dim[0])])
+
+# 定义目标函数（使列数最少）
+M = np.hstack((X, Y, Z))
+col_sum = np.sum(M, axis=0)
+problem += pulp.lpSum(col_sum)
+
+# 添加约束
+for i in range(1, 25):
+    t1_row_i = pulp.lpDot(X[i - 1, :], A[:, i - 1])
+    t2_row_i = pulp.lpDot(Y[i - 1, :], B[:, i - 1])
+    t3_row_i = pulp.lpDot(Z[i - 1, :], C[:, i - 1])
+    problem += 1.65 * t1_row_i + 1.5 * t2_row_i + 1.375 * t3_row_i >= 28200
+
+# 求解问题
+problem.solve()
+
+# 输出结果
+if problem.status == pulp.LpStatusOptimal:
+    optimal_cols = [i for i in range(M_dim[1]) if M[:, i].sum().value() == 0]
+    print("最少的全为0的列数:", len(optimal_cols))
+    print("列索引:", optimal_cols)
+
+    # 打印X，Y，Z的结果
+    print("X:")
+    for i in range(X_dim[0]):
+        for j in range(X_dim[1]):
+            print(int(X[i, j].value()), end=" ")
+        print()
+
+    print("\nY:")
+    for i in range(Y_dim[0]):
+        for j in range(Y_dim[1]):
+            print(int(Y[i, j].value()), end=" ")
+        print()
+
+    print("\nZ:")
+    for i in range(Z_dim[0]):
+        for j in range(Z_dim[1]):
+            print(int(Z[i, j].value()), end=" ")
+        print()
+    print("\nM:")
+    for i in range(M_dim[0]):
+        for j in range(M_dim[1]):
+            print(int(M[i, j].value()), end=" ")
+        print()
+else:
+    print("无法找到最优解")
