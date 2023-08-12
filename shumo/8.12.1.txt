@@ -11,7 +11,7 @@ for i in range(0, n):
     for j in range(0, 8):
         if M[j] - S[i] >= 0:
             M[j] -= S[i]
-            T[i] = j
+            T[i] = M_idx[j]
             break
 
 print(T)
