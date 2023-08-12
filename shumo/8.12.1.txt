@@ -1,0 +1,17 @@
+import numpy as np
+
+S = np.empty([50, 1], dtype="float")  # 排序后的S
+T = np.empty([50, 1], dtype='int')  # 结果
+
+M = [6000 for _ in range(0, 8)]  # 每家转运商还剩余的转运能力
+M = np.array(M)
+M_idx = np.empty([8, 1], dtype='int')  # 对损耗率进行排序后的转运商编号
+n = 50  # 供货商的数目
+for i in range(0, n):
+    for j in range(0, 8):
+        if M[j] - S[i] >= 0:
+            M[j] -= S[i]
+            T[i] = j
+            break
+
+print(T)
