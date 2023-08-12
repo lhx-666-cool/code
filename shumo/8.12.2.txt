@@ -1,0 +1,21 @@
+import numpy as np
+
+T1 = np.empty([1, 24])
+T2 = np.empty([1, 24])
+T3 = np.empty([1, 24])
+SUM = T1 + T2 + T3
+M = np.empty([1, 24])
+for i in range(0, 24):
+    if SUM[i] > 48000:
+        M[i] = 1.65 * T1[i] + 1.5 * T2[i] + 1.375 * T3[i]
+    else:
+        S = 48000 - T1[i]
+        if S > 0:
+            if S > T3[i]:
+                M[i] = 1.65 * T1[i] + 1.5 * (48000 - T1[i] - T3[i]) + 1.375 * T3[i]
+            else:
+                M[i] = .65 * T1[i] + 1.375 * (48000 - T1[i])
+        else:
+            M[i] = 1.65 * 48000
+
+print(M)
