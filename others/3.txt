@@ -1,0 +1,24 @@
+import requests
+import re
+import os
+
+if not os.path.exists('./北辰图片'):
+    os.mkdir('./北辰图片')
+url = "https://www.xn--djr232l.top/index.php/archives/144/"
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36 Edg/103.0.1264.37"
+}
+page_text = requests.get(url=url, headers=headers).text
+# <img src="https://www.xn--djr232l.top/usr/uploads/2021/06/694156375.png" alt="2021年高考全国乙卷理综高考真题解析-全国高考真题解析（参考版）(1)_2_页面_01.png" title="" style="">
+re1 = r'<p><img src="(.*?)" alt=".*?></p>'
+img_src_list = re.findall(re1, page_text, re.S)
+del img_src_list[7]
+for src in img_src_list:
+    img_data = requests.get(url=src, headers=headers)
+    img_data = img_data.content
+    # 生成图片名称
+    img_name = src.split('/')[-1]
+    img_path = './北辰图片/' + img_name
+    with open(img_path, "wb") as fp:
+        fp.write(img_data)
+        print(img_name, 'ok')
