@@ -1,37 +1,48 @@
 import numpy as np
 import pandas as pd
+from scipy.optimize import fsolve
 
 # Given data
 R = 300.4
-data = pd.read_excel("8.14.1.xlsx", sheet_name=0, usecols="A:B", header=None)
+data = pd.read_excel("8.15.1.xlsx", sheet_name=0, usecols="A:C", header=None)
 data = np.array(data)
 print(data)
 
-ecos = data[:, 0]
-esin = data[:, 1]
-p = 290
+x = data[:, 0]
+y = data[:, 1]
+z = data[:, 2]
+p = 299.8
 resp = 0
-resD = 1e9
+resD = 1e18
 
-for i in range(100):
-    n_p = p + i * 0.1
-    r = np.empty([706, 1], dtype=float)
+for i in range(1200):
+    n_p = p + i * 0.001
+    d = np.empty([706, 1], dtype=float)
     for j in range(0, 706):
-        if esin[j] == 0:
-            r[j] = (1.068 * n_p * R + n_p ** 2) / (-2 * n_p * ecos[j])
+        if x[j] == 0:
+            zr = -1 * (0.534 * R + n_p / 2)
+            xr = x[j] * zr / z[j]
+
+        # else:
+        #     zr = ((2 * n_p) + np.sqrt((2 * n_p) ** 2 + 4 * ((x[j] / z[j]) ** 2) * 2 * n_p * (0.534 * R + n_p / 2))) / (
+        #                 2 * (x[j] / z[j] ** 2))
         else:
-            r[j] = (2 * n_p * ecos[j] + np.sqrt(
-                (2 * n_p * ecos[j]) ** 2 + 4 * esin[j] ** 2 * (1.068 * n_p * R + n_p ** 2))) / (
-                           2 * esin[j] ** 2)
-    d = r - 300.4
+            # zr = fsolve(lambda zrt: (x[j] / z[j] * zrt) ** 2 - 2 * n_p * (zrt + 0.534 * R + n_p / 2), -300)
+            # xr = (x[j] * zr) / z[j]
+            xr = (z[j] + np.sqrt(z[j] ** 2 + 2 * x[j] / n_p * (0.534 * R * x[j] + n_p / 2 * x[j]))) / (x[j] / p)
+            zr = (z[j] * xr) / x[j]
+            # zr2 = ((2 * n_p) + np.sqrt((2 * n_p) ** 2 + 4 * ((x[j] / z[j]) ** 2) * 2 * n_p * (0.534 * R + n_p / 2))) / (
+            #             2 * (x[j] / z[j] ** 2))
+
+
+        d[j] = ((x[j] - xr) ** 2 + (z[j] - zr) ** 2) ** 0.5
     flag = True
-    for j in range(0, 706):
-        if d[j] < -0.6 or d[j] > 0.6:
-            flag = False
-            break
+    # for j in range(0, 706):
+    #     if d[j] > 0.6:
+    #         flag = False
+    #         break
     if flag:
         D = np.sum(d)
         if D < resD:
             resD = D
             resp = n_p
-
