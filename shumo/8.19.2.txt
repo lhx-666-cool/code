@@ -1,0 +1,46 @@
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import odeint
+from typing import List
+
+m0 = 1165.992
+m1 = 4866
+m2 = 2433
+e = 0
+p = 1025
+r0 = 1
+g = 9.8
+k = 80000
+P = 0
+res_c = 0
+plt.rcParams['font.family'] = 'Microsoft YaHei'
+plt.rcParams['lines.linewidth'] = 0.5
+T = 2 * np.pi / 2.2143
+for i in range(0, 100):
+    c = e + i * 1000
+
+
+    def f(x_list: List[float], t: float):
+        x1, x2, m, n = x_list
+        return np.array([
+            m,
+            n,
+            (4890 * np.cos(1.4005 * t) - 167.8395 * m - p * np.pi * (r0 ** 2) * g * x1 - k * (x1 - x2) - c * np.sqrt(
+                np.abs(m - n)) * (m - n)) / (m0 + m1),
+            k * (x1 - x2) / m2 + c * np.sqrt(np.abs(m - n)) * (m - n) / m2
+        ])
+
+
+    x = np.linspace(0, 200, 10000)  # 0-160, 800点
+
+    result = odeint(f, [0, 0, 0, 0], x)  # 四个0是初始值
+    sum = 0
+    for j in range(0, 10000):
+        sum += c * (result[j][2] - result[j][3]) ** 2 * T / 10000
+    sum /= T
+    if sum > P:
+        P = sum
+        res_c = c
+    print(i)
+print(res_c)
