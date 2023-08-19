@@ -1,0 +1,39 @@
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import odeint
+from typing import List
+
+m0 = 1335.535
+m1 = 4866
+m2 = 2433
+c = 10000
+p = 1025
+r0 = 1
+g = 9.8
+k = 80000
+plt.rcParams['font.family'] = 'Microsoft YaHei'
+plt.rcParams['lines.linewidth'] = 0.5
+
+
+def f(x_list: List[float], t: float):
+    x1, x2, m, n = x_list
+    return np.array([
+        m,
+        n,
+        (6250 * np.cos(1.4005 * t) - 656.3616 * m - p * np.pi * (r0 ** 2) * g * x1 - k * (x1 - x2) - c * (
+                m - n)) / (m0 + m1),
+        k * (x1 - x2) / m2 + c * (m - n) / m2
+    ])
+
+
+x = np.linspace(0, 160, 800)  # 0-160, 800点
+
+result = odeint(f, [0, 0, 0, 0], x)  # 四个0是初始值
+
+plt.plot(x, result[:, 0], label='x1')  # 打印图
+plt.plot(x, result[:, 1], label='x2')
+
+plt.legend()
+plt.grid()  # 网格
+plt.show()
